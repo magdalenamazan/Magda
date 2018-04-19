@@ -1,0 +1,78 @@
+https://mateusza.psiko.pr1v.net/test/odleglosci-miast/miasta.html
+<!doctype html>
+
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="miasta-db.js"></script>
+<script src="miasta.js"></script>
+<script src="../komb.js"></script>
+<script>
+function akcja(){
+	var nazwa1 = document.querySelector("#m1").value
+	var miasto1 = Miasta.find( x => x.name == nazwa1 )
+	document.querySelector("#outm1").value = miasto1.gps.map( x => x.toFixed( 3 ) ).join(" ")
+
+	var nazwa2 = document.querySelector("#m2").value
+	var miasto2 = Miasta.find( x => x.name == nazwa2 )
+	document.querySelector("#outm2").value = miasto2.gps.map( x => x.toFixed( 3 ) ).join(" ") 
+	
+	document.querySelector("#odleglosc").value = ( town_dist( miasto1, miasto2 ) ).toFixed(1) + " km"
+	document.querySelector("#odleglosc2").value = ( town_dist_ma( miasto1, miasto2 ) ).toFixed(1) + " km" 
+	document.querySelector("#odleglosc3").value = ( town_dist_appr( miasto1, miasto2 ) ).toFixed(1) + " km" 
+	document.querySelector("#odleglosc4").value = ( town_dist_appr2( miasto1, miasto2 ) ).toFixed(1) + " km" 
+
+}
+
+function naj(){
+	var maxd = 0.0
+	var mind = 1.0/0.0
+	var Max1, Max2
+	var Min1, Min2
+	for ( var i = 0; i < Miasta.length; i++ ){
+		for ( var j = i + 1; j < Miasta.length; j++ ){
+			var d = town_dist( Miasta[i], Miasta[j] )
+			if ( d > maxd ){
+				Max1 = Miasta[i]
+				Max2 = Miasta[j]
+				maxd = d
+			}
+			if ( d < mind ){
+				Min1 = Miasta[i]
+				Min2 = Miasta[j]
+				mind = d
+			}
+		}
+	}
+	return ({
+		max: [ Max1.name, Max2.name, maxd ].join(" "),
+		min: [ Min1.name, Min2.name, mind ].join(" ")
+	})
+}
+
+var randgps = () => [ [-90,90], [-180,180] ].map( x => (x[1]-x[0])*Math.random()+x[0] );
+
+var dist_comp = (p1, p2) => [ dist, dist_ma, dist_appr, ( (a,b) => [ a, b ].join( " --> " ) ) ].map( callback => callback( p1, p2 ) );
+
+</script>
+</head>
+<body onload="akcja()">
+
+<input id=m1 value="Warszawa">
+<input id=m2 value="Piaseczno">
+
+ <button onclick="akcja()">Podaj odległość</button>
+
+<p>
+Współrzędne 1: <output id="outm1" ></output>
+</p>
+<p>
+Współrzędne 2: <output id="outm2" ></output>
+</p>
+<p> Odległość (wzór z Wikipedii): <output id="odleglosc"></output></p>
+<p> Odległość (wzór własny): <output id="odleglosc2"></output></p>
+<p> Odległość (wzór przybliżony): <output id="odleglosc3"></output></p>
+<p> Odległość (wzór przybliżony 2): <output id="odleglosc4"></output></p>
+</body>
+
+</html>
